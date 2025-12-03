@@ -17,21 +17,24 @@ def get_time():
 
 
 def get_words():
+    # 保持之前修复的逻辑，防止接口报错
     return "不管天气如何，记得带上自己的阳光！"
 
 def get_weather(city, key):
-    url = f"https://api.seniverse.com/v3/weather/daily.json?key={key}&location={city}&language=zh-Hans&unit=c&start=-1&days=5"
-    res = requests.get(url).json()
-    print(res)
-    # 增加异常处理防止天气接口报错导致程序中断
+    # 增加异常处理，防止天气接口偶尔抽风导致程序崩溃
     try:
+        url = f"https://api.seniverse.com/v3/weather/daily.json?key={key}&location={city}&language=zh-Hans&unit=c&start=-1&days=5"
+        res = requests.get(url).json()
+        print(res)
         weather = (res['results'][0])["daily"][0]
         city_name = (res['results'][0])["location"]["name"]
         return city_name, weather
-    except KeyError:
+    except Exception as e:
+        print(f"天气获取失败: {e}")
         return city, {'text_day': '未知', 'high': '-', 'low': '-', 'wind_direction': '未知'}
 
 def get_count(born_date):
+    # 这个函数非常通用，也可以用来计算“在一起”的天数
     delta = today - datetime.strptime(born_date, "%Y-%m-%d")
     return delta.days
 
@@ -71,11 +74,12 @@ if __name__ == '__main__':
         
         # --- 修改点1：获取在一起的起始日期 ---
         # 对应你在 users_info.json 里加的 "days": "2023-10-20"
-        love_date = user_info['days'] 
+        love_start_date = user_info['days'] 
         
         wea_city, weather = get_weather(city, weather_key)
         
-        data_packet = dict() # 变量名微调为 data_packet 避免与循环外的 data 混淆，不影响逻辑
+        # 为了避免混淆，建议这里新建一个字典用来发包
+        data_packet = dict()
         data_packet['time'] = {'value': out_time}
         data_packet['words'] = {'value': words}
         data_packet['weather'] = {'value': weather['text_day']}
@@ -89,8 +93,9 @@ if __name__ == '__main__':
         
         # --- 修改点2：计算并添加在一起的天数 ---
         # 直接复用 get_count 函数，它能计算当前日期与过去某日期的差值
-        data_packet['love_days'] = {'value': get_count(love_date)}
+        data_packet['love_days'] = {'value': get_count(love_start_date)}
 
+        # 注意：这里发送的是 data_packet
         res = wm.send_template(user_id, template_id, data_packet)
         print(res)
         num += 1

@@ -11,10 +11,9 @@ pycparser==2.21
 pyDes==2.0.1
 python-dateutil==2.8.2
 PyYAML==6.0.1
-requests==2.29.0
+requests==2.31.0
 six==1.16.0
-urllib3==1.26.0
+urllib3==1.26.15
 wechatpy==1.8.18
 win32-setctime==1.1.0
 xmltodict==0.13.0
-urllib3==1.26.15

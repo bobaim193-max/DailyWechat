@@ -17,11 +17,7 @@ def get_time():
 
 
 def get_words():
-    words = requests.get("https://tenapi.cn/v2/yiyan?format=json").json()
-    print(words)
-    if words['code'] != 200:
-        return get_words()
-    return words['data']['hitokoto']
+   return "不管天气如何，记得带上自己的阳光！"
 
 def get_weather(city, key):
     url = f"https://api.seniverse.com/v3/weather/daily.json?key={key}&location={city}&language=zh-Hans&unit=c&start=-1&days=5"
